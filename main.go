@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"goapiwijaya/database"
-	"goapiwijaya/routes"
+	"github.com/fprasty/GoApiWijaya/database"
+	"github.com/fprasty/GoApiWijaya/routes"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"

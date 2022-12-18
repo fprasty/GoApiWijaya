@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"goapiwijaya/util"
+	"github.com/fprasty/GoApiWijaya/util"
 
 	"github.com/gofiber/fiber/v2"
 )

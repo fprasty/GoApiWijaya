@@ -1,4 +1,4 @@
-package controller
+package controllers
 
 import (
 	"fmt"
@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"goapiwijaya/database"
-	"goapiwijaya/models"
-	"goapiwijaya/util"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+
+	"github.com/fprasty/GoApiWijaya/database"
+	"github.com/fprasty/GoApiWijaya/models"
+	"github.com/fprasty/GoApiWijaya/util"
 )
 
 // Email name validation

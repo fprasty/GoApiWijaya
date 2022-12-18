@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"goapiwijaya/models"
+	"github.com/fprasty/GoApiWijaya/models"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
@@ -27,5 +27,7 @@ func Connect() {
 
 	database.AutoMigrate(
 		&models.User{},
+		&models.UserBarang{},
+		&models.BarangComment{},
 	)
 }

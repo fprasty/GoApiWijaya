@@ -1,4 +1,4 @@
-module goapiwijaya
+module 	"github.com/fprasty/GoApiWijaya"
 
 go 1.19
 
