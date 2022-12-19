@@ -3,6 +3,8 @@ package util
 import (
 	"time"
 
+	"github.com/gofiber/fiber"
+	jwtware "github.com/gofiber/jwt"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -15,6 +17,12 @@ func GenerateJwt(issuer string) (string, error) {
 	})
 	return claims.SignedString([]byte(SecretKey))
 
+}
+
+func authSession() func(ctx *fiber.Ctx) {
+	return jwtware.New(jwtware.Config{
+		SigningKey: []byte(SecretKey),
+	})
 }
 
 func Parsejwt(cookie string) (string, error) {

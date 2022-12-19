@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"log"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -37,7 +38,7 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 
-	//Check if email already exist
+	//Check jika email sudah ada
 	database.DB.Where("email=?", strings.TrimSpace(data["email"].(string))).First(&userData)
 	if userData.Id != 0 {
 		c.Status(400)
@@ -117,7 +118,7 @@ func Login(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return nil
 	}
-
+	//Set Cookie
 	cookie := fiber.Cookie{
 		Name:     "jwt",
 		Value:    token,
@@ -126,12 +127,51 @@ func Login(c *fiber.Ctx) error {
 	}
 	c.Cookie(&cookie)
 	return c.JSON(fiber.Map{
-		"message": "you have successfully login",
-		"user":    user,
+		//"message": "you have successfully login",
+		"user": user,
 	})
 
 }
 
+func Logout(c *fiber.Ctx) error {
+	var data map[string]string
+	if err := c.BodyParser(&data); err != nil {
+		fmt.Println("Unable parse body")
+	}
+	//Cookie Removed
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		HTTPOnly: true,
+		MaxAge:   -1,
+	}
+	var user models.User
+	c.Cookie(&cookie)
+	return c.JSON(fiber.Map{
+		"message": "you have successfully logout",
+		"user":    user,
+	})
+}
+
 type Claims struct {
 	jwt.StandardClaims
+}
+
+func AllUser(c *fiber.Ctx) error {
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	limit := 5
+	offset := (page - 1) * limit
+	var total int64
+	var getuser []models.User
+	database.DB.Preload("User").Offset(offset).Limit(limit).Find(&getuser)
+	database.DB.Model(&models.UserBarang{}).Count(&total)
+	return c.JSON(fiber.Map{
+		"data": getuser,
+		"meta": fiber.Map{
+			"total":     total,
+			"page":      page,
+			"last_page": math.Ceil(float64(int(total) / limit)),
+		},
+	})
+
 }
