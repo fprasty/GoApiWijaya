@@ -3,14 +3,16 @@ package controllers
 import (
 	"fmt"
 	"log"
-	"math"
 	"regexp"
-	"strconv"
+
+	//"strconv"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+
+	//"github.com/o1egl/paseto"
 
 	"github.com/fprasty/GoApiWijaya/database"
 	"github.com/fprasty/GoApiWijaya/models"
@@ -40,7 +42,7 @@ func Register(c *fiber.Ctx) error {
 
 	//Check jika email sudah ada
 	database.DB.Where("email=?", strings.TrimSpace(data["email"].(string))).First(&userData)
-	if userData.Id != 0 {
+	if userData.Id != "" {
 		c.Status(400)
 		return c.JSON(fiber.Map{
 			"message": "Email already exist",
@@ -101,7 +103,7 @@ func Login(c *fiber.Ctx) error {
 	}
 	var user models.User
 	database.DB.Where("email=?", data["email"]).First(&user)
-	if user.Id == 0 {
+	if user.Id == "" {
 		c.Status(404)
 		return c.JSON(fiber.Map{
 			"message": "Email Address doesn't exit, kindly create an account",
@@ -113,11 +115,15 @@ func Login(c *fiber.Ctx) error {
 			"message": "incorrect password",
 		})
 	}
-	token, err := util.GenerateJwt(strconv.Itoa(int(user.Id)))
+
+	//Generate token jwt
+
+	token, err := util.GenerateJwt(user.Id)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return nil
 	}
+
 	//Set Cookie
 	cookie := fiber.Cookie{
 		Name:     "jwt",
@@ -131,6 +137,10 @@ func Login(c *fiber.Ctx) error {
 		"user": user,
 	})
 
+}
+
+type Claims struct {
+	jwt.StandardClaims
 }
 
 func Logout(c *fiber.Ctx) error {
@@ -151,27 +161,4 @@ func Logout(c *fiber.Ctx) error {
 		"message": "you have successfully logout",
 		"user":    user,
 	})
-}
-
-type Claims struct {
-	jwt.StandardClaims
-}
-
-func AllUser(c *fiber.Ctx) error {
-	page, _ := strconv.Atoi(c.Query("page", "1"))
-	limit := 5
-	offset := (page - 1) * limit
-	var total int64
-	var getuser []models.User
-	database.DB.Preload("User").Offset(offset).Limit(limit).Find(&getuser)
-	database.DB.Model(&models.UserBarang{}).Count(&total)
-	return c.JSON(fiber.Map{
-		"data": getuser,
-		"meta": fiber.Map{
-			"total":     total,
-			"page":      page,
-			"last_page": math.Ceil(float64(int(total) / limit)),
-		},
-	})
-
 }
