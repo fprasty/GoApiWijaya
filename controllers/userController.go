@@ -3,8 +3,10 @@ package controllers
 import (
 	"fmt"
 	"log"
-	"math"
 	"strconv"
+
+	//"math"
+	//"strconv"
 	"strings"
 
 	"github.com/fprasty/GoApiWijaya/database"
@@ -13,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+/*
 // Get All User
 func AllUser(c *fiber.Ctx) error {
 	cookie := c.Cookies("jwt")
@@ -37,9 +40,9 @@ func AllUser(c *fiber.Ctx) error {
 		},
 	})
 }
-
-// Get User by id
-func GetUser(c *fiber.Ctx) error {
+*/
+// User Get User by id
+func UserGetme(c *fiber.Ctx) error {
 	cookie := c.Cookies("jwt")
 	id, _ := util.Parsejwt(cookie)
 	/*if err != nil {
@@ -60,14 +63,15 @@ func GetUser(c *fiber.Ctx) error {
 	UserData["last_name"] = user.LastName
 	UserData["email"] = user.Email
 	UserData["phone"] = user.Phone
+	//UserData["password"] = user.Password
 
 	return c.JSON(fiber.Map{
-		"message": "Sucess get user",
-		"user":    UserData,
+		"user": UserData,
 	})
 
 }
 
+// User Update User by id
 func UpdateUser(c *fiber.Ctx) error {
 	var data map[string]interface{}
 	var userData models.User
@@ -76,24 +80,31 @@ func UpdateUser(c *fiber.Ctx) error {
 	}
 	//Cookie session
 	cookie := c.Cookies("jwt")
-	cparse, _ := util.Parsejwt(cookie)
-	id := c.Params("id")
-	user := models.User{
-		Id: cparse,
+
+	if _, err := util.Parsejwt(cookie); err != nil {
+		c.Status(400)
+		return c.JSON(fiber.Map{
+			"messsage": "Cookie error",
+		})
+
 	}
+	id, _ := strconv.Atoi(c.Params("id"))
+	/*user := models.User{
+		Id: string(cparse),
+	}*/
 
 	uparams := models.User{
-		Id: id,
+		Id: uint(id),
 	}
 	//Params id cek
-	if uparams.Id != user.Id {
+	if uparams.Id != 0 {
 		c.Status(400)
 		return c.JSON("Id not match")
 	}
 
 	//Check jika email sudah ada
 	database.DB.Where("email=?", strings.TrimSpace(data["email"].(string))).First(&userData)
-	if userData.Id != "" {
+	if userData.Id != 0 {
 		c.Status(400)
 		return c.JSON(fiber.Map{
 			"message": "Email already exist",
@@ -108,7 +119,7 @@ func UpdateUser(c *fiber.Ctx) error {
 	}
 
 	//UpdateUser
-	err := database.DB.Model(&user).Updates(&update)
+	err := database.DB.Model(&userData).Updates(&update)
 	if err != nil {
 		log.Println(err)
 	}
@@ -122,7 +133,7 @@ func UpdateUser(c *fiber.Ctx) error {
 	c.Status(200)
 	return c.JSON(fiber.Map{
 		"cookie":  id,
-		"userid":  user.Id,
+		"userid":  userData.Id,
 		"user":    UserData,
 		"message": "barang updated successfully",
 	})

@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
+type Admin struct {
 	Id        uint   `json:"id"`
 	UUID      string `json:"uuid"`
 	FirstName string `json:"first_name"`
@@ -16,20 +16,17 @@ type User struct {
 	Password  []byte `json:"-"`
 }
 
-// Generate UUID using google uuid package
-func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
+func (user *Admin) BeforeCreate(tx *gorm.DB) (err error) {
 	// UUID version 4
 	user.UUID = uuid.NewString()
 	return
 }
 
-// Hash password func
-func (user *User) SetPassword(password string) {
+func (user *Admin) SetPassword(password string) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 14)
 	user.Password = hashedPassword
 }
 
-// Compare passowrd func
-func (user *User) ComparePassword(password string) error {
+func (user *Admin) ComparePassword(password string) error {
 	return bcrypt.CompareHashAndPassword(user.Password, []byte(password))
 }

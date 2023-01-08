@@ -27,7 +27,8 @@ func Connect() {
 
 	database.AutoMigrate(
 		&models.User{},
-		&models.UserBarang{},
-		&models.BarangComment{},
+		//&models.UserBarang{},
+		//&models.BarangComment{},
+		&models.Admin{},
 	)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 
 	//"strconv"
 	"strings"
@@ -42,7 +43,7 @@ func Register(c *fiber.Ctx) error {
 
 	//Check jika email sudah ada
 	database.DB.Where("email=?", strings.TrimSpace(data["email"].(string))).First(&userData)
-	if userData.Id != "" {
+	if userData.Id != 0 {
 		c.Status(400)
 		return c.JSON(fiber.Map{
 			"message": "Email already exist",
@@ -103,7 +104,7 @@ func Login(c *fiber.Ctx) error {
 	}
 	var user models.User
 	database.DB.Where("email=?", data["email"]).First(&user)
-	if user.Id == "" {
+	if user.Id == 0 {
 		c.Status(404)
 		return c.JSON(fiber.Map{
 			"message": "Email Address doesn't exit, kindly create an account",
@@ -118,7 +119,7 @@ func Login(c *fiber.Ctx) error {
 
 	//Generate token jwt
 
-	token, err := util.GenerateJwt(user.Id)
+	token, err := util.GenerateJwt(strconv.Itoa(int(user.Id)))
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return nil

@@ -2,11 +2,11 @@ package models
 
 type UserBarang struct {
 	Id     uint   `json:"id"`
-	Title  string `json:title`
-	Desc   string `json:desc`
-	Image  string `json:image`
-	Star   string `json:star`
-	Price  int64  `json:price`
-	UserID string `json:userid`
-	User   User   `json:"user";gorm:"foreignkey:UserID"`
+	Title  string `json:"barang_title"`
+	Desc   string `json:"barang_deskripsi"`
+	Price  int64  `json:"barang_price"`
+	Image  string `json:"barang_image"`
+	Likes  int64  `json:"barang_likes"`
+	UserID string `json:"userid"`
+	User   User   `gorm:"foreignkey:UserID"`
 }
